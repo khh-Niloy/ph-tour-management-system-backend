@@ -1,3 +1,4 @@
+import { envVars } from "./app/config/env";
 import { Server } from "http";
 import mongoose from "mongoose";
 import { app } from "./app";
@@ -6,12 +7,10 @@ let server: Server;
 
 const startServer = async () => {
   try {
-    await mongoose.connect(
-      "mongodb+srv://khhniloy0:xWHroCdA4S4fsrqg@cluster0.m65dh.mongodb.net/ph-tour?appName=Cluster0"
-    );
+    await mongoose.connect(envVars.MONGO_URI);
     console.log("✅ mongoose connected");
 
-    server = app.listen(8000, () => {
+    server = app.listen(envVars.PORT, () => {
       console.log(`Server is running`);
     });
   } catch (error) {
