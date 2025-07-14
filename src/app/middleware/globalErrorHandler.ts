@@ -11,7 +11,7 @@ export const globalErrorHandler = (
 ) => {
   res.status(500).json({
     success: false,
-    message: `something went wrong from global error ${err.message}`,
+    message: `something went wrong : ${err.message}`,
     err,
     stack: envVars.NODE_ENV == "development" ? err.stack : null,
   });
