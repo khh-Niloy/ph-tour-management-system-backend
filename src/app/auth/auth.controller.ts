@@ -4,10 +4,10 @@ import { successResponse } from "../utils/successResponse";
 
 const userLogin = async (req: Request, res: Response) => {
   try {
-    console.log(req.body);
+    // console.log(req.body);
     const loggedInUser = await authService.userLoginService(req.body);
 
-    console.log(loggedInUser);
+    // console.log(loggedInUser);
 
     successResponse(res, {
       statusCode: 200,
@@ -19,7 +19,7 @@ const userLogin = async (req: Request, res: Response) => {
     console.log(error);
     res.status(400).json({
       success: false,
-      message: error.message,
+      message: (error as Error).message,
     });
   }
 };

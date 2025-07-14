@@ -1,3 +1,4 @@
+import { envVars } from "../../config/env";
 import { IauthProvider, IUser } from "./user.interface";
 import { User } from "./user.model";
 import bcryptjs from "bcryptjs";
@@ -10,7 +11,10 @@ const createUserService = async (playLoad: Partial<IUser>) => {
     throw new Error("User already exist");
   }
 
-  const hashedPassword = await bcryptjs.hash(password as string, 10);
+  const hashedPassword = await bcryptjs.hash(
+    password as string,
+    parseInt(envVars.BCRYPT_SALT_ROUND)
+  );
 
   const authProvider: IauthProvider = {
     provider: "credential",

@@ -1,13 +1,14 @@
 import bcryptjs from "bcryptjs";
 import { IUser } from "../modules/user/user.interface";
 import { User } from "../modules/user/user.model";
-import jwt from "jsonwebtoken";
+import { generateAccessToken } from "../utils/jwt";
+import { envVars } from "../config/env";
 
 const userLoginService = async (playLoad: Partial<IUser>) => {
   const { email, password } = playLoad;
 
   const user = await User.findOne({ email });
-  console.log(user);
+  // console.log(user);
 
   if (!user) {
     throw new Error("Please register first");
@@ -27,9 +28,11 @@ const userLoginService = async (playLoad: Partial<IUser>) => {
     role: user.role,
   };
 
-  const accessToken = jwt.sign(jwtPayload, "secret", {
-    expiresIn: "1D",
-  });
+  const accessToken = generateAccessToken(
+    jwtPayload,
+    envVars.JWT_SECRET,
+    envVars.JWT_ACCESS_EXPIRES
+  );
 
   return { accessToken, user };
 };
