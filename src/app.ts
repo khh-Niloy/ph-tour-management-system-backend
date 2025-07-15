@@ -3,7 +3,9 @@ import { routes } from "./app/routes";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
 export const app = express();
+import cookieParser from "cookie-parser";
 
+app.use(cookieParser());
 app.use(express.json());
 app.use("/api/v1", routes);
 
