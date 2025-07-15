@@ -39,5 +39,7 @@ export const roleBasedProtection =
       throw new Error("You are not permitted to view this route!!!");
     }
 
+    req.user = userInfoJWTAccessToken;
+
     next();
   };

@@ -17,6 +17,29 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const updateUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.params.id;
+    const payload = req.user;
+    const reqBody = req.body;
+    const updatedUserInfo = await userServices.updateUserService(
+      userId,
+      payload,
+      reqBody
+    );
+
+    successResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "user info updated",
+      data: updatedUserInfo,
+    });
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+};
+
 const getAllUser = async (req: Request, res: Response) => {
   try {
     const { allUser, totalCount } = await userServices.getAllUserService();
@@ -35,4 +58,5 @@ const getAllUser = async (req: Request, res: Response) => {
 export const userController = {
   createUser,
   getAllUser,
+  updateUser,
 };
