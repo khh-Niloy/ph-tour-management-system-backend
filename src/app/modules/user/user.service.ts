@@ -1,5 +1,6 @@
+import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../config/env";
-import { IauthProvider, IUser } from "./user.interface";
+import { IauthProvider, IUser, Role } from "./user.interface";
 import { User } from "./user.model";
 import bcryptjs from "bcryptjs";
 
@@ -30,6 +31,57 @@ const createUserService = async (playLoad: Partial<IUser>) => {
   return newCreatedUser;
 };
 
+/* 
+  user, admin, superadmin -> name, password, address, phone
+  admin, superadmin -> role, isDeleted isVerified isActive, 
+*/
+
+const updateUserService = async (
+  userId: string,
+  payload: JwtPayload,
+  reqBody: Partial<IUser>
+) => {
+  const user = await User.findById(userId);
+
+  console.log(reqBody);
+
+  if (!user) {
+    throw new Error("user not found!");
+  }
+
+  if (
+    (payload.role == Role.ADMIN || payload.role == Role.USER) &&
+    reqBody.role == Role.SUPER_ADMIN
+  ) {
+    throw new Error("you are not authorized to make role super admin");
+  }
+
+  if (payload.role == Role.USER && reqBody.role == Role.ADMIN) {
+    throw new Error("you are not authorized to make role admin");
+  }
+
+  if (
+    (reqBody.isActive || reqBody.isDeleted || reqBody.isVerified) &&
+    payload.role === Role.USER
+  ) {
+    throw new Error(
+      "you are not authorized to make changes to isActive, isDeleted and isVerified as user"
+    );
+  }
+
+  const newUpdateHashedPassword = await bcryptjs.hash(
+    reqBody.password as string,
+    parseInt(envVars.BCRYPT_SALT_ROUND)
+  );
+
+  reqBody.password = newUpdateHashedPassword;
+
+  const updateUser = await User.findByIdAndUpdate(userId, reqBody, {
+    new: true,
+  });
+  return updateUser;
+};
+
 const getAllUserService = async () => {
   const allUser = await User.find({});
   const totalCount = await User.countDocuments();
@@ -39,4 +91,5 @@ const getAllUserService = async () => {
 export const userServices = {
   createUserService,
   getAllUserService,
+  updateUserService,
 };

@@ -18,3 +18,9 @@ userRoutes.get(
   roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN),
   userController.getAllUser
 );
+
+userRoutes.patch(
+  "/:id",
+  roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN, Role.USER),
+  userController.updateUser
+);
