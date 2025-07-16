@@ -1,7 +1,11 @@
+import { setCookie } from "./../utils/setCookie";
 import { Request, Response } from "express";
 import { authService } from "./auth.service";
 import { successResponse } from "../utils/successResponse";
-import { setCookie } from "../utils/setCookie";
+import { createAccessAndRefreshToken } from "../utils/userToken";
+import { envVars } from "../config/env";
+import { JwtPayload } from "jsonwebtoken";
+import { IUser } from "../modules/user/user.interface";
 
 const userLogin = async (req: Request, res: Response) => {
   try {
@@ -80,7 +84,11 @@ const resetPassword = async (req: Request, res: Response) => {
     const { oldPassword, newPassword } = req.body;
     const payload = req.user;
 
-    await authService.resetPasswordService(oldPassword, newPassword, payload);
+    await authService.resetPasswordService(
+      oldPassword,
+      newPassword,
+      payload as JwtPayload
+    );
 
     successResponse(res, {
       statusCode: 201,
@@ -97,9 +105,38 @@ const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
+export const googleCallback = async (req: Request, res: Response) => {
+  const user = req.user;
+  const redirectTo = (req.query.state ? req.query.state : "") as string;
+
+  if (redirectTo.startsWith("/")) {
+    redirectTo.slice(1);
+  }
+
+  const { _id, email, role } = user as Partial<IUser>;
+
+  if (!user) {
+    throw new Error("user not found");
+  }
+
+  const userPayload = {
+    userId: _id,
+    email: email,
+    role: role,
+  };
+
+  const { accessToken, refreshToken } =
+    createAccessAndRefreshToken(userPayload);
+  // console.log(accessToken, refreshToken);
+  setCookie(res, accessToken, refreshToken);
+
+  res.redirect(`${envVars.FRONTEND_URL}/${redirectTo}`);
+};
+
 export const authController = {
   userLogin,
   getNewAccessToken,
   userLogOut,
   resetPassword,
+  googleCallback,
 };
