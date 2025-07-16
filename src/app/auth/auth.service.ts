@@ -1,7 +1,11 @@
 import bcryptjs from "bcryptjs";
 import { IUser } from "../modules/user/user.interface";
 import { User } from "../modules/user/user.model";
-import { generateAccessToken } from "../utils/jwt";
+import {
+  createAccessAndRefreshToken,
+  getNewAccessTokenFromRefreshToken,
+} from "../utils/userToken";
+import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../config/env";
 
 const userLoginService = async (playLoad: Partial<IUser>) => {
@@ -28,15 +32,47 @@ const userLoginService = async (playLoad: Partial<IUser>) => {
     role: user.role,
   };
 
-  const accessToken = generateAccessToken(
-    jwtPayload,
-    envVars.JWT_SECRET,
-    envVars.JWT_ACCESS_EXPIRES
+  const { accessToken, refreshToken } = createAccessAndRefreshToken(jwtPayload);
+
+  return { accessToken, refreshToken, user: user };
+};
+
+const getNewAccessTokenService = async (refreshToken: string) => {
+  const newAccessstoken = getNewAccessTokenFromRefreshToken(refreshToken);
+  return newAccessstoken;
+};
+
+const resetPasswordService = async (
+  oldPassword: string,
+  newPassword: string,
+  payload: JwtPayload
+) => {
+  const user = await User.findById(payload.userId);
+
+  if (!user) {
+    throw new Error("user not exist");
+  }
+
+  const isPasswordOK = await bcryptjs.compare(
+    oldPassword,
+    user?.password as string
   );
 
-  return { accessToken, user };
+  if (!isPasswordOK) {
+    throw new Error("old password did not match!");
+  }
+
+  const newHashedPassword = await bcryptjs.hash(
+    newPassword,
+    parseInt(envVars.BCRYPT_SALT_ROUND)
+  );
+
+  user.password = newHashedPassword;
+  user.save();
 };
 
 export const authService = {
   userLoginService,
+  getNewAccessTokenService,
+  resetPasswordService,
 };

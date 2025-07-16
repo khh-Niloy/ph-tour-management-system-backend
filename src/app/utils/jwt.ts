@@ -1,6 +1,6 @@
 import jwt, { JwtPayload, SignOptions } from "jsonwebtoken";
 
-export const generateAccessToken = (
+export const generateToken = (
   jwtPayload: JwtPayload,
   jwtSecret: string,
   jwtExpiresIn: string
@@ -11,7 +11,7 @@ export const generateAccessToken = (
   return accessToken;
 };
 
-export const verifyToken = (accessTokenPlayLoad: string, jwtSecret: string) => {
-  const accessToken = jwt.verify(accessTokenPlayLoad, jwtSecret);
+export const verifyToken = (accessTokenPayLoad: string, jwtSecret: string) => {
+  const accessToken = jwt.verify(accessTokenPayLoad, jwtSecret);
   return accessToken;
 };

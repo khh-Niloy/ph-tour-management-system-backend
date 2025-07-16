@@ -1,13 +1,17 @@
+import { setCookie } from "./../utils/setCookie";
 import { Request, Response } from "express";
 import { authService } from "./auth.service";
 import { successResponse } from "../utils/successResponse";
+import { createAccessAndRefreshToken } from "../utils/userToken";
+import { envVars } from "../config/env";
+import { JwtPayload } from "jsonwebtoken";
+import { IUser } from "../modules/user/user.interface";
 
 const userLogin = async (req: Request, res: Response) => {
   try {
-    // console.log(req.body);
     const loggedInUser = await authService.userLoginService(req.body);
 
-    // console.log(loggedInUser);
+    setCookie(res, loggedInUser.accessToken, loggedInUser.refreshToken);
 
     successResponse(res, {
       statusCode: 200,
@@ -24,6 +28,115 @@ const userLogin = async (req: Request, res: Response) => {
   }
 };
 
+const getNewAccessToken = async (req: Request, res: Response) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    const newAccessToken = await authService.getNewAccessTokenService(
+      refreshToken as string
+    );
+    setCookie(res, newAccessToken.newAccessToken);
+
+    successResponse(res, {
+      statusCode: 201,
+      success: true,
+      message: "new accees token created",
+      data: newAccessToken,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      success: false,
+      message: (error as Error).message,
+    });
+  }
+};
+
+const userLogOut = async (req: Request, res: Response) => {
+  try {
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+    });
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+    });
+
+    successResponse(res, {
+      statusCode: 201,
+      success: true,
+      message: "user log out",
+      data: null,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      success: false,
+      message: (error as Error).message,
+    });
+  }
+};
+
+const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const payload = req.user;
+
+    await authService.resetPasswordService(
+      oldPassword,
+      newPassword,
+      payload as JwtPayload
+    );
+
+    successResponse(res, {
+      statusCode: 201,
+      success: true,
+      message: "password updated",
+      data: null,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      success: false,
+      message: (error as Error).message,
+    });
+  }
+};
+
+export const googleCallback = async (req: Request, res: Response) => {
+  const user = req.user;
+  const redirectTo = (req.query.state ? req.query.state : "") as string;
+
+  if (redirectTo.startsWith("/")) {
+    redirectTo.slice(1);
+  }
+
+  const { _id, email, role } = user as Partial<IUser>;
+
+  if (!user) {
+    throw new Error("user not found");
+  }
+
+  const userPayload = {
+    userId: _id,
+    email: email,
+    role: role,
+  };
+
+  const { accessToken, refreshToken } =
+    createAccessAndRefreshToken(userPayload);
+  // console.log(accessToken, refreshToken);
+  setCookie(res, accessToken, refreshToken);
+
+  res.redirect(`${envVars.FRONTEND_URL}/${redirectTo}`);
+};
+
 export const authController = {
   userLogin,
+  getNewAccessToken,
+  userLogOut,
+  resetPassword,
+  googleCallback,
 };

@@ -31,11 +31,6 @@ const createUserService = async (playLoad: Partial<IUser>) => {
   return newCreatedUser;
 };
 
-/* 
-  user, admin, superadmin -> name, password, address, phone
-  admin, superadmin -> role, isDeleted isVerified isActive, 
-*/
-
 const updateUserService = async (
   userId: string,
   payload: JwtPayload,

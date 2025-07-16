@@ -16,7 +16,7 @@ export const roleBasedProtection =
 
     const userInfoJWTAccessToken = verifyToken(
       accessToken,
-      envVars.JWT_SECRET
+      envVars.JWT_ACCESSS_SECRET
     ) as JwtPayload;
 
     const user = await User.findOne({ email: userInfoJWTAccessToken.email });
@@ -26,13 +26,14 @@ export const roleBasedProtection =
     }
 
     if (
-      user.isActive === isActive.BLOCKED ||
-      user.isActive === isActive.INACTIVE
+      user?.isActive === isActive.BLOCKED ||
+      user?.isActive === isActive.INACTIVE
     ) {
-      throw new Error(`user is, ${user.isActive}`);
+      throw new Error(`user is ${user?.isActive}!`);
     }
-    if (user.isDeleted) {
-      throw new Error(`user is Deleted`);
+
+    if (user?.isDeleted) {
+      throw new Error("user is deleted!");
     }
 
     if (!Object.values(roles).includes(userInfoJWTAccessToken.role)) {
