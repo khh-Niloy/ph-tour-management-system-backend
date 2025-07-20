@@ -6,7 +6,7 @@ import { User } from "../modules/user/user.model";
 export const createAccessAndRefreshToken = (jwtPayload: JwtPayload) => {
   const accessToken = generateToken(
     jwtPayload,
-    envVars.JWT_ACCESSS_SECRET,
+    envVars.JWT_ACCESS_SECRET,
     envVars.JWT_ACCESS_EXPIRES
   );
 
@@ -47,7 +47,7 @@ export const getNewAccessTokenFromRefreshToken = async (
 
   const accessToken = generateToken(
     jwtPayload,
-    envVars.JWT_ACCESSS_SECRET,
+    envVars.JWT_ACCESS_SECRET,
     envVars.JWT_ACCESS_EXPIRES
   );
 

@@ -5,6 +5,7 @@ import { User } from "./user.model";
 import bcryptjs from "bcryptjs";
 
 const createUserService = async (playLoad: Partial<IUser>) => {
+  console.log("first")
   const { email, password, ...rest } = playLoad;
 
   const isUserExist = await User.findOne({ email });

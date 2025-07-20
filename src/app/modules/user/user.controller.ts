@@ -4,6 +4,7 @@ import { successResponse } from "../../utils/successResponse";
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    console.log(req.body)
     const newCreatedUser = await userServices.createUserService(req.body);
     successResponse(res, {
       statusCode: 201,

@@ -16,7 +16,7 @@ export const roleBasedProtection =
 
     const userInfoJWTAccessToken = verifyToken(
       accessToken,
-      envVars.JWT_ACCESSS_SECRET
+      envVars.JWT_ACCESS_SECRET
     ) as JwtPayload;
 
     const user = await User.findOne({ email: userInfoJWTAccessToken.email });
