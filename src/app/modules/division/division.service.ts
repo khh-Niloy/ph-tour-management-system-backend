@@ -1,3 +1,4 @@
+import { Tour } from "../tour/tour.model"
 import { IDivision } from "./division.interface"
 import { Division } from "./division.model"
 
@@ -35,8 +36,21 @@ const updateDivisionService = async(divisionInfo : Partial<IDivision>, divisionI
     return updateDivision
 }
 
+const deleteDivisionService = async(divisionId: string)=>{
+    const isDivisionExistInTourCollec = await Tour.find({division: divisionId})
+
+    // console.log(isDivisionExistInTourCollec)
+
+    if(isDivisionExistInTourCollec.length !== 0){
+        throw new Error("Cannot delete division because it is associated with one or more tours.");
+    }
+
+    await Division.findByIdAndDelete(divisionId)
+}
+
 export const divisionServices = {
     createDivisionService,
     getAllDivisionService,
-    updateDivisionService
+    updateDivisionService,
+    deleteDivisionService
 }
