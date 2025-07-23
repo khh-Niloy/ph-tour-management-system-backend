@@ -41,4 +41,24 @@ const tourSchema = new Schema<ITour>({
     timestamps: true
 })
 
+
+tourSchema.pre("save", async function(next){
+    if(this.isModified("title")){
+        this.slug = this.title.split(" ").join("-").toLowerCase()
+    }
+    next()
+})
+
+tourSchema.pre("findOneAndUpdate", async function(next){
+    const tour = this.getUpdate() as ITour
+
+    if(tour.title){
+        tour.slug = tour.title.split(" ").join("-").toLowerCase()
+    }
+
+    this.setUpdate(tour)
+
+    next()
+})
+
 export const Tour = model<ITour>("Tour", tourSchema)

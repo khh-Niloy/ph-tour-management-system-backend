@@ -3,24 +3,16 @@ import { IDivision } from "./division.interface"
 import { Division } from "./division.model"
 
 const createDivisionService = async(divisionInfo: IDivision)=>{
-    const {name, slug, thumbnail, description} = divisionInfo
+    const {name} = divisionInfo
 
     const isExistName = await Division.findOne({name})
     if(isExistName){
         throw new Error("name already exist!");
     }
 
-    const isSlugExist = await Division.findOne({slug})
-    if(isSlugExist){
-        throw new Error("slug already exist!");
-    }
+    // divisionInfo.slug = (name+"-"+"division").toLowerCase()
 
-    const newDivision = await Division.create({
-        name,
-        slug,
-        thumbnail,
-        description
-    })
+    const newDivision = await Division.create(divisionInfo)
 
     return newDivision
 }
@@ -32,11 +24,27 @@ const getAllDivisionService = async()=>{
 }
 
 const updateDivisionService = async(divisionInfo : Partial<IDivision>, divisionId: string)=>{
+
+    const duplicateDivisionName = await Division.findOne({name: divisionInfo.name})
+    if(duplicateDivisionName){
+        throw new Error("division name already exist!");
+    }
+
+    // if(divisionInfo.name){
+    //     divisionInfo.slug = (divisionInfo.name+"-"+"division").toLowerCase()
+    // }
+
     const updateDivision = await Division.findByIdAndUpdate(divisionId, divisionInfo, {new: true})
     return updateDivision
 }
 
 const deleteDivisionService = async(divisionId: string)=>{
+
+    const isDivisionExist = await Division.findById(divisionId)
+    if(!isDivisionExist){
+        throw new Error("division not exist!");
+    }
+
     const isDivisionExistInTourCollec = await Tour.find({division: divisionId})
 
     // console.log(isDivisionExistInTourCollec)

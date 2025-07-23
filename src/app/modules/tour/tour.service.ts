@@ -56,27 +56,46 @@ const createTourService = async(tourInfo: ITour)=>{
         throw new Error("this tour type does not exist!");
     }
 
+    // tourInfo.slug = tourInfo.title.split(" ").join("-").toLowerCase()
+
     const newTour = await Tour.create(tourInfo)
     return newTour
 }
 
 
-const getAllTourService = async()=>{
-    const newTour = await Tour.find({})
-    const totalTour = await Tour.estimatedDocumentCount()
-    return {newTour, totalTour}
+const getAllTourService = async(query : Record<string, string>)=>{
+
+    console.log(query)
+    const filter = query
+    const searchTerm = query.searchTerm || ""
+    console.log(searchTerm)
+
+    // * cause filter does not need searchTerm!
+    delete filter["searchTerm"]
+
+    const searchArray = ["title", "description"]
+    const searchQuery = {
+        $or: searchArray.map((field)=> ({[field]: {$regex: searchTerm, $options: "i"}}))
+    }
+
+    const newTour = await Tour.find(searchQuery).find(filter)
+
+    // const totalTour = filter ? newTour.length : await Tour.estimatedDocumentCount()
+    return {newTour}
 }
 
 
 const updateTourService = async(tourInfo: Partial<ITour>, tourId: string)=>{
     if(tourInfo.tourType == undefined){
         throw new Error("tour type id required");
-        
     }
     if(tourInfo.division == undefined){
         throw new Error("division id required");
-        
     }
+
+    // if(tourInfo.title){
+    //     tourInfo.slug = tourInfo.title.split(" ").join("-").toLowerCase()
+    // }
 
     const updatedTour = await Tour.findByIdAndUpdate(tourId, tourInfo, {new: true})
     return updatedTour

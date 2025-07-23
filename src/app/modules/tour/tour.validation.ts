@@ -14,7 +14,7 @@ export const updateTourTypeZodSchema = z.object({
 
 export const tourZodSchema = z.object({
     title: z.string({invalid_type_error: "title must be string"}),
-    slug: z.string({invalid_type_error: "slug must be string"}),
+    slug: z.string({invalid_type_error: "slug must be string"}).optional(),
     description: z.string({invalid_type_error: "description must be string"}),
     images: z.array(z.string()).min(1, {message: "minimum 1 image"}).optional(),
     location: z.string({invalid_type_error: "location must be string"}).optional(),

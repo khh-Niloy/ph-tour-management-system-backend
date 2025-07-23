@@ -119,7 +119,8 @@ const createTour = async(req: Request, res: Response)=>{
 
 const getAllTour = async(req: Request, res: Response)=>{
   try {
-    const {newTour, totalTour} = await tourServices.getAllTourService()
+    const query = req.query
+    const {newTour, totalTour} = await tourServices.getAllTourService(query as Record<string, string>)
 
     successResponse(res, {
       statusCode: 200,
