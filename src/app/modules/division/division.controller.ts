@@ -39,6 +39,26 @@ const getAllDivision = async(req: Request, res: Response)=>{
 
 }
 
+const getSingleDivision = async(req: Request, res: Response) =>{
+    try {
+    const slug = req.params.slug
+    console.log(slug)
+    const singleDivision = await divisionServices.getSingleDivisionService(slug)
+
+    successResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "single division",
+      data: singleDivision,
+    });
+    } catch (error) {
+        res.status(400).json({
+      success: false,
+      message: (error as Error).message,
+    });
+    }
+}
+
 const updateDivision = async(req: Request, res: Response) =>{
     try {
     const divisionId = req.params.id
@@ -81,5 +101,6 @@ export const divisionController = {
     createDivision,
     getAllDivision,
     updateDivision,
-    deleteDivision
+    deleteDivision,
+    getSingleDivision
 }

@@ -68,20 +68,40 @@ const getAllTourService = async(query : Record<string, string>)=>{
     console.log(query)
     const filter = query
     const searchTerm = query.searchTerm || ""
-    console.log(searchTerm)
+    const sort = query.sort || "-createdAt"
+    const fields = query.fields?.split(",").join(" ") || ""
+    const page = parseInt(query.page) || 1
+    const limit = parseInt(query.limit) || 10
+    const skip = (page - 1) * limit
+    console.log(skip)
 
     // * cause filter does not need searchTerm!
     delete filter["searchTerm"]
+    delete filter["sort"]
+    delete filter["fields"]
+    delete filter["page"]
+    delete filter["limit"]
 
     const searchArray = ["title", "description"]
     const searchQuery = {
         $or: searchArray.map((field)=> ({[field]: {$regex: searchTerm, $options: "i"}}))
     }
 
-    const newTour = await Tour.find(searchQuery).find(filter)
+    const newTour = await Tour.find(searchQuery).find(filter).sort(sort).select(fields).skip(skip).limit(limit)
+    const totalCount = await Tour.estimatedDocumentCount()
 
-    // const totalTour = filter ? newTour.length : await Tour.estimatedDocumentCount()
-    return {newTour}
+    const totalTour = query ? newTour.length : totalCount
+    const totalPage = Math.ceil(totalCount/limit)
+    console.log(totalPage)
+
+    const meta = {
+        total: totalTour,
+        page: page,
+        limit: limit,
+        totalPage: totalPage
+    }
+
+    return {newTour, meta}
 }
 
 
