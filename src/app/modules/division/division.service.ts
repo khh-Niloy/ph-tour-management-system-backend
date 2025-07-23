@@ -23,6 +23,16 @@ const getAllDivisionService = async()=>{
     return {allDivision, totalDivision}
 }
 
+
+const getSingleDivisionService = async(slug: string)=>{
+    const singleDivision = await Division.find({slug: slug})
+    console.log(singleDivision)
+    if(!singleDivision){
+        throw new Error("this division does not exist!");
+    }
+    return singleDivision
+}
+
 const updateDivisionService = async(divisionInfo : Partial<IDivision>, divisionId: string)=>{
 
     const duplicateDivisionName = await Division.findOne({name: divisionInfo.name})
@@ -60,5 +70,6 @@ export const divisionServices = {
     createDivisionService,
     getAllDivisionService,
     updateDivisionService,
-    deleteDivisionService
+    deleteDivisionService,
+    getSingleDivisionService
 }

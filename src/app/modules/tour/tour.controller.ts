@@ -120,12 +120,12 @@ const createTour = async(req: Request, res: Response)=>{
 const getAllTour = async(req: Request, res: Response)=>{
   try {
     const query = req.query
-    const {newTour, totalTour} = await tourServices.getAllTourService(query as Record<string, string>)
+    const {newTour, meta} = await tourServices.getAllTourService(query as Record<string, string>)
 
     successResponse(res, {
       statusCode: 200,
       success: true,
-      meta: totalTour,
+      meta: meta,
       message: "all tour",
       data: newTour,
     });

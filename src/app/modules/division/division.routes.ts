@@ -11,6 +11,8 @@ divisionRoutes.post("/create", roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN)
 
 divisionRoutes.get("/", divisionController.getAllDivision)
 
+divisionRoutes.get("/:slug", divisionController.getSingleDivision)
+
 divisionRoutes.patch("/:id", roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN), validateSchema(updateDivisionZodSchema), divisionController.updateDivision)
 
 divisionRoutes.delete("/:id", roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN), divisionController.deleteDivision)
