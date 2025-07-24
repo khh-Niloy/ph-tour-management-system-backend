@@ -17,6 +17,7 @@ app.use(
   })
 );
 app.use(passport.initialize());
+console.log("test")
 app.use(passport.session());
 app.use(cookieParser());
 app.use(express.json());
