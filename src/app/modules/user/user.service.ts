@@ -39,38 +39,37 @@ const updateUserService = async (
 ) => {
   const user = await User.findById(userId);
 
-  console.log(reqBody);
-
   if (!user) {
     throw new Error("user not found!");
   }
 
   if (
-    (payload.role == Role.ADMIN || payload.role == Role.USER) &&
-    reqBody.role == Role.SUPER_ADMIN
+    (payload?.role == Role.ADMIN || payload?.role == Role.USER) &&
+    reqBody?.role == Role.SUPER_ADMIN
   ) {
     throw new Error("you are not authorized to make role super admin");
   }
 
-  if (payload.role == Role.USER && reqBody.role == Role.ADMIN) {
+  if (payload?.role == Role.USER && reqBody?.role == Role.ADMIN) {
     throw new Error("you are not authorized to make role admin");
   }
 
   if (
-    (reqBody.isActive || reqBody.isDeleted || reqBody.isVerified) &&
-    payload.role === Role.USER
+    (reqBody?.isActive || reqBody?.isDeleted || reqBody?.isVerified) &&
+    payload?.role === Role.USER
   ) {
     throw new Error(
       "you are not authorized to make changes to isActive, isDeleted and isVerified as user"
     );
   }
 
+  if(reqBody.password){
   const newUpdateHashedPassword = await bcryptjs.hash(
-    reqBody.password as string,
+    reqBody?.password as string,
     parseInt(envVars.BCRYPT_SALT_ROUND)
   );
-
-  reqBody.password = newUpdateHashedPassword;
+    reqBody.password = newUpdateHashedPassword;
+  }
 
   const updateUser = await User.findByIdAndUpdate(userId, reqBody, {
     new: true,

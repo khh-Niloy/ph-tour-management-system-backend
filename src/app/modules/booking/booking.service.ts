@@ -1,0 +1,74 @@
+import { PAYMENT_STATUS } from "../payment/payment.interface"
+import { Payment } from "../payment/payment.model"
+import { ISSLCommerz } from "../sslCommerz/sslCommerz.interface"
+import { sslService } from "../sslCommerz/sslCommerz.service"
+import { Tour } from "../tour/tour.model"
+import { User } from "../user/user.model"
+import { BOOKING_STATUS, IBooking } from "./booking.interface"
+import { Booking } from "./booking.model"
+
+const getTransactionId = ()=>{
+    return `tran_${Date.now()}_${Math.floor(Math.random()*1000)}`
+}
+
+const createBookingService = async(payload: Partial<IBooking>, userId: string)=>{
+    const session = await Booking.startSession()
+    session.startTransaction()
+    try {
+
+    const user = await User.findById(userId)    
+    if(!user){
+        throw new Error("user does not exist");
+    }
+
+    if(!user.phone || !user.address){
+        throw new Error("please update your profile to book a tour")
+    }
+
+    const newBooking = await Booking.create([{user:userId, status: BOOKING_STATUS.PENDING, ...payload}], {session})
+
+    const tourCost = await Tour.findById(payload.tour).select("costFrom")
+    const totalCost = tourCost?.costFrom as number * Number(payload.guestCount!)
+    const transactionId = getTransactionId()
+
+    const payment = await Payment.create([{
+        booking: newBooking[0]._id,
+        status: PAYMENT_STATUS.UNPAID,
+        transactionId: transactionId,
+        amount: totalCost
+    }], {session})
+
+    const updatedBooking = await Booking.findByIdAndUpdate(newBooking[0]._id, {payment: payment[0]._id}, {new: true, session}).populate("user", "name email phone address").populate("tour", "title costForm").populate("payment")
+
+    const userAddress = (updatedBooking?.user as any).address
+    const userEmail = (updatedBooking?.user as any).email
+    const userPhoneNumber = (updatedBooking?.user as any).phone
+    const userName = (updatedBooking?.user as any).name
+
+    const sslPayload : ISSLCommerz = {
+        name: userName,
+        email: userEmail,
+        phoneNumber: userPhoneNumber,
+        address: userAddress,
+        amount: totalCost,
+        transactionId: transactionId
+    }
+
+    const sslPayment = await sslService.sslPaymentInit(sslPayload)
+
+    await session.commitTransaction()
+    session.endSession()
+    return {
+        paymentUrl: sslPayment.GatewayPageURL,
+        booking: updatedBooking
+    }
+    } catch (error) {
+        await session.abortTransaction()
+        session.endSession()
+        throw error
+    }
+}
+
+export const bookingServices = {
+    createBookingService
+}
