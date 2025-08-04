@@ -38,7 +38,10 @@ const createBookingService = async(payload: Partial<IBooking>, userId: string)=>
         amount: totalCost
     }], {session})
 
-    const updatedBooking = await Booking.findByIdAndUpdate(newBooking[0]._id, {payment: payment[0]._id}, {new: true, session}).populate("user", "name email phone address").populate("tour", "title costForm").populate("payment")
+    const updatedBooking = await Booking.findByIdAndUpdate(newBooking[0]._id, {payment: payment[0]._id}, {new: true, session})
+    .populate("user", "name email phone address")
+    .populate("tour", "title costForm")
+    .populate("payment")
 
     const userAddress = (updatedBooking?.user as any).address
     const userEmail = (updatedBooking?.user as any).email

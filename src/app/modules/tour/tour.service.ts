@@ -66,15 +66,15 @@ const createTourService = async(tourInfo: ITour)=>{
 const getAllTourService = async(query : Record<string, string>)=>{
 
     console.log(query)
-    const filter = query
-    const searchTerm = query.searchTerm || ""
-    const sort = query.sort || "-createdAt"
     const fields = query.fields?.split(",").join(" ") || ""
     const page = parseInt(query.page) || 1
     const limit = parseInt(query.limit) || 10
     const skip = (page - 1) * limit
     console.log(skip)
-
+    
+    const filter = query
+    const searchTerm = query.searchTerm || ""
+    const sort = query.sort || "-createdAt"
     // * cause filter does not need searchTerm!
     delete filter["searchTerm"]
     delete filter["sort"]
