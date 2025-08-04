@@ -1,10 +1,16 @@
 import { Request, Response } from "express"
 import { divisionServices } from "./division.service"
 import { successResponse } from "../../utils/successResponse"
+import { IDivision } from "./division.interface"
 
 const createDivision = async(req: Request, res: Response) =>{
     try {
-        const newDivision = await divisionServices.createDivisionService(req.body)
+      const payload : IDivision = {
+          ...req.body,
+        thumbnail: req.file?.path
+      }
+
+      const newDivision = await divisionServices.createDivisionService(payload)
 
     successResponse(res, {
       statusCode: 201,
