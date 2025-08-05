@@ -4,11 +4,13 @@ import { validateSchema } from "../../middleware/zodValidate";
 import { roleBasedProtection } from "../../middleware/roleBasedProtection";
 import { Role } from "../user/user.interface";
 import { tourTypeZodSchema, tourZodSchema, upadteTourZodSchema, updateTourTypeZodSchema } from "./tour.validation";
+import { multerUpload } from "../../config/multer.config";
 
 export const tourRoutes = Router()
 
-tourRoutes.post("/create-tour-type", validateSchema(tourTypeZodSchema), 
+tourRoutes.post("/create-tour-type", 
 roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN),
+validateSchema(tourTypeZodSchema),
 tourTypeController.createTourType)
 
 tourRoutes.get("/tour-types", tourTypeController.getAllTourType)
@@ -22,7 +24,7 @@ tourRoutes.delete("/tour-types/:id", roleBasedProtection(Role.ADMIN, Role.SUPER_
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-tourRoutes.post("/create", validateSchema(tourZodSchema), roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN),
+tourRoutes.post("/create",multerUpload.array("files"), validateSchema(tourZodSchema), roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN),
 tourController.createTour)
 
 tourRoutes.get("/", tourController.getAllTour)

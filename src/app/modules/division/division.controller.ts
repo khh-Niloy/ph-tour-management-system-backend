@@ -68,7 +68,13 @@ const getSingleDivision = async(req: Request, res: Response) =>{
 const updateDivision = async(req: Request, res: Response) =>{
     try {
     const divisionId = req.params.id
-    const updatedDivision = await divisionServices.updateDivisionService(req.body, divisionId)
+
+    const payload : IDivision = {
+      ...req.body,
+      thumbnail: req.file?.path
+    }
+
+    const updatedDivision = await divisionServices.updateDivisionService(payload, divisionId)
 
     successResponse(res, {
       statusCode: 200,

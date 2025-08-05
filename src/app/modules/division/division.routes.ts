@@ -8,12 +8,15 @@ import { multerUpload } from "../../config/multer.config";
 
 export const divisionRoutes = Router()
 
-divisionRoutes.post("/create", multerUpload.single("file"), roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN), validateSchema(divisionZodSchema), divisionController.createDivision)
+divisionRoutes.post("/create", 
+multerUpload.single("file"), 
+roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN), 
+validateSchema(divisionZodSchema), divisionController.createDivision)
 
 divisionRoutes.get("/", divisionController.getAllDivision)
 
 divisionRoutes.get("/:slug", divisionController.getSingleDivision)
 
-divisionRoutes.patch("/:id", roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN), validateSchema(updateDivisionZodSchema), divisionController.updateDivision)
+divisionRoutes.patch("/:id", multerUpload.single("file"), roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN), validateSchema(updateDivisionZodSchema), divisionController.updateDivision)
 
 divisionRoutes.delete("/:id", roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN), divisionController.deleteDivision)
