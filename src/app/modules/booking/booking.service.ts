@@ -11,11 +11,11 @@ import { Booking } from "./booking.model"
 const createBookingService = async(payload: Partial<IBooking>, userId: string)=>{
     const session = await Booking.startSession()
     session.startTransaction()
-    try {
 
+    try {
     const user = await User.findById(userId)    
     if(!user){
-        throw new Error("user does not exist");
+        throw new Error("The user does not exist");
     }
 
     if(!user.phone || !user.address){
@@ -24,8 +24,8 @@ const createBookingService = async(payload: Partial<IBooking>, userId: string)=>
 
     const newBooking = await Booking.create([{user:userId, status: BOOKING_STATUS.PENDING, ...payload}], {session})
 
-    const tourCost = await Tour.findById(payload.tour).select("costFrom")
-    const totalCost = tourCost?.costFrom as number * Number(payload.guestCount!)
+    const tourBasicCost = await Tour.findById(payload.tour).select("costFrom")
+    const totalCost = tourBasicCost?.costFrom as number * Number(payload.guestCount!)
     const transactionId = getTransactionId()
 
     const payment = await Payment.create([{

@@ -83,8 +83,14 @@ const getAllUserService = async () => {
   return { allUser, totalCount };
 };
 
+const getMeService = async (userInfo: JwtPayload) => {
+  const meUser = await User.findById(userInfo.userId).select("-password")
+  return meUser
+};
+
 export const userServices = {
   createUserService,
   getAllUserService,
   updateUserService,
+  getMeService
 };

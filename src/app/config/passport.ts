@@ -6,7 +6,7 @@ import {
 } from "passport-google-oauth20";
 import { envVars } from "./env";
 import { User } from "../modules/user/user.model";
-import { Role } from "../modules/user/user.interface";
+import { isActive, Role } from "../modules/user/user.interface";
 
 passport.use(
   new GoogelStrategy(
@@ -29,6 +29,23 @@ passport.use(
         }
 
         let user = await User.findOne({ email });
+
+
+        if (
+              user?.isActive === isActive.BLOCKED ||
+              user?.isActive === isActive.INACTIVE
+            ) {
+              throw new Error(`user is ${user?.isActive}!`);
+            }
+        
+            if (user?.isDeleted) {
+              throw new Error("user is deleted!");
+            }
+        
+            if (!user?.isVerified) {
+              throw new Error("user is not verified!");
+            }
+
 
         if (!user) {
           user = await User.create({

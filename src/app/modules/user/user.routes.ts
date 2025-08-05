@@ -7,16 +7,24 @@ import { roleBasedProtection } from "../../middleware/roleBasedProtection";
 
 export const userRoutes = Router();
 
-userRoutes.post(
-  "/register",
-  validateSchema(userCreateZodSchema),
-  userController.createUser
+userRoutes.get(
+  "/all-user",
+  roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN),
+  userController.getAllUser
 );
 
 userRoutes.get(
   "/all-user",
   roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN),
   userController.getAllUser
+);
+
+userRoutes.get("/me", roleBasedProtection(...Object.values(Role)), userController.getMe)
+
+userRoutes.post(
+  "/register",
+  validateSchema(userCreateZodSchema),
+  userController.createUser
 );
 
 userRoutes.patch(

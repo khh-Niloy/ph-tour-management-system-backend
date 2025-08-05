@@ -7,13 +7,24 @@ import passport from "passport";
 export const authRoutes = Router();
 
 authRoutes.post("/login", authController.userLogin);
+
 authRoutes.post("/refresh-token", authController.getNewAccessToken);
+
 authRoutes.get("/logout", authController.userLogOut);
-authRoutes.post(
-  "/reset-password",
+
+authRoutes.post("/change-password",
   roleBasedProtection(...Object.values(Role)),
-  authController.resetPassword
+  authController.changePassword
 );
+
+authRoutes.post("/set-password",
+  roleBasedProtection(...Object.values(Role)),
+  authController.setPassword
+);
+
+authRoutes.post("/forget-password", authController.forgetPassword)
+
+authRoutes.post("/reset-password", roleBasedProtection(...Object.values(Role)),  authController.resetPassword)
 
 // google login -> callback
 authRoutes.get(
