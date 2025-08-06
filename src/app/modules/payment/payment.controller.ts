@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { paymentServices } from "./payment.service"
 import { envVars } from "../../config/env"
 import { successResponse } from "../../utils/successResponse"
+import { sslService } from "../sslCommerz/sslCommerz.service"
 
 const successPayment = async(req: Request, res: Response)=>{
     try {
@@ -57,9 +58,22 @@ const rePayment = async(req: Request, res: Response)=>{
         });
 }
 
+const validatePayment = async(req: Request, res: Response)=>{
+    console.log("sslcommerz ipn url body", req.body);
+    await sslService.validatePayment(req.body)
+
+    successResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Payment Validated Successfully",
+            data: null,
+        });
+}
+
 export const paymentController = {
     successPayment,
     failPayment,
     cancelPayment,
-    rePayment
+    rePayment,
+    validatePayment
 }

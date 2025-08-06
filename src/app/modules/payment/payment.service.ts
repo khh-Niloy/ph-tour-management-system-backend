@@ -81,9 +81,9 @@ const session = await Payment.startSession()
     session.startTransaction()
     try {
         const paymentRecord = await Payment.findOne({transactionId: query.transactionId})
-        const updatePaymentStatus = await Payment.findByIdAndUpdate(paymentRecord?._id, {status: PAYMENT_STATUS.FAILED}, {new: true, session})
+        await Payment.findByIdAndUpdate(paymentRecord?._id, {status: PAYMENT_STATUS.FAILED}, {new: true, session})
 
-        const updateBookingStatus = await Booking.findByIdAndUpdate(paymentRecord?.booking, {status: BOOKING_STATUS.FAILED},
+        await Booking.findByIdAndUpdate(paymentRecord?.booking, {status: BOOKING_STATUS.FAILED},
             {new: true, session}
         )
 
@@ -103,9 +103,9 @@ const session = await Payment.startSession()
     session.startTransaction()
     try {
         const paymentRecord = await Payment.findOne({transactionId: query.transactionId})
-        const updatePaymentStatus = await Payment.findByIdAndUpdate(paymentRecord?._id, {status: PAYMENT_STATUS.CANCELLED}, {new: true, session})
+        await Payment.findByIdAndUpdate(paymentRecord?._id, {status: PAYMENT_STATUS.CANCELLED}, {new: true, session})
 
-        const updateBookingStatus = await Booking.findByIdAndUpdate(paymentRecord?.booking, {status: BOOKING_STATUS.CANCEL},
+        await Booking.findByIdAndUpdate(paymentRecord?.booking, {status: BOOKING_STATUS.CANCEL},
             {new: true, session}
         )
 
@@ -164,5 +164,6 @@ export const paymentServices = {
     successPaymentService,
     failPaymentService,
     cancelPaymentService,
-    rePaymentService
+    rePaymentService,
+    
 }

@@ -35,7 +35,7 @@ export const uploadBufferToCloudinary = async (buffer: Buffer, fileName: string)
 
 
         })
-
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
         console.log(error);
         throw new Error(`Error uploading file ${error.message}`)

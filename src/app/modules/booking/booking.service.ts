@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { getTransactionId } from "../../utils/getTransactionId"
 import { PAYMENT_STATUS } from "../payment/payment.interface"
 import { Payment } from "../payment/payment.model"
@@ -25,7 +27,10 @@ const createBookingService = async(payload: Partial<IBooking>, userId: string)=>
     const newBooking = await Booking.create([{user:userId, status: BOOKING_STATUS.PENDING, ...payload}], {session})
 
     const tourBasicCost = await Tour.findById(payload.tour).select("costFrom")
-    const totalCost = tourBasicCost?.costFrom as number * Number(payload.guestCount!)
+    if (payload.guestCount === undefined || payload.guestCount === null) {
+        throw new Error("guestCount is required to calculate total cost");
+    }
+    const totalCost = (tourBasicCost?.costFrom as number) * Number(payload.guestCount);
     const transactionId = getTransactionId()
 
     const payment = await Payment.create([{

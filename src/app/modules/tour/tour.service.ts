@@ -102,7 +102,7 @@ const getAllTourService = async(query : Record<string, string>)=>{
         totalPage: totalPage
     }
 
-    return {newTour, meta}
+    return {newTour, totalTour}
 }
 
 
