@@ -13,12 +13,6 @@ userRoutes.get(
   userController.getAllUser
 );
 
-userRoutes.get(
-  "/all-user",
-  roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN),
-  userController.getAllUser
-);
-
 userRoutes.get("/me", roleBasedProtection(...Object.values(Role)), userController.getMe)
 
 userRoutes.post(
