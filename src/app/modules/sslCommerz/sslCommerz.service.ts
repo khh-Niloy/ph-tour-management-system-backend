@@ -13,6 +13,9 @@ const sslPaymentInit = async(payload: ISSLCommerz)=>{
             total_amount: payload.amount,
             currency: "BDT",
             tran_id: payload.transactionId,
+
+            // These URLs (success_url, fail_url, cancel_url, ipn_url) are called by SSLCOMMERZ — not by your frontend or the user.
+
             success_url: `${envVars.SSL.SSL_SUCCESS_BACKEND_URL}?transactionId=${payload.transactionId}&amount=${payload.amount}&status=success`,
             fail_url: `${envVars.SSL.SSL_FAIL_BACKEND_URL}?transactionId=${payload.transactionId}&amount=${payload.amount}&status=fail`,
             cancel_url: `${envVars.SSL.SSL_CANCEL_BACKEND_URL}?transactionId=${payload.transactionId}&amount=${payload.amount}&status=cancel`,
@@ -39,6 +42,9 @@ const sslPaymentInit = async(payload: ISSLCommerz)=>{
             ship_postcode: 1000,
             ship_country: "N/A",
     }
+
+    // here i am giving the url that if success, fail or cancel then where you have to 
+    // * redirect to Backend
 
     const response = await axios({
         method: "POST",

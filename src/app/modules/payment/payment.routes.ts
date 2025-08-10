@@ -7,7 +7,8 @@ paymentRoutes.post("/success", paymentController.successPayment)
 paymentRoutes.post("/fail", paymentController.failPayment)
 paymentRoutes.post("/cancel", paymentController.cancelPayment)
 paymentRoutes.post("/rePay/:bookingId", paymentController.rePayment)
-paymentRoutes.post("/validate-payment", paymentController.validatePayment)
+paymentRoutes.post("/validate-payment", paymentController.validatePayment) // this will hit by sslcommerze
+// validate hobe oder end theke
 
 
 /*

@@ -5,7 +5,7 @@ import { JwtPayload } from "jsonwebtoken";
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    console.log(req.body)
+    // console.log(req.body)
     const newCreatedUser = await userServices.createUserService(req.body);
     successResponse(res, {
       statusCode: 201,

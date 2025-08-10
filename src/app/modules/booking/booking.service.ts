@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import mongoose from "mongoose"
 import { getTransactionId } from "../../utils/getTransactionId"
 import { PAYMENT_STATUS } from "../payment/payment.interface"
 import { Payment } from "../payment/payment.model"
@@ -11,7 +12,7 @@ import { BOOKING_STATUS, IBooking } from "./booking.interface"
 import { Booking } from "./booking.model"
 
 const createBookingService = async(payload: Partial<IBooking>, userId: string)=>{
-    const session = await Booking.startSession()
+    const session = await mongoose.startSession()
     session.startTransaction()
 
     try {
@@ -27,6 +28,7 @@ const createBookingService = async(payload: Partial<IBooking>, userId: string)=>
     const newBooking = await Booking.create([{user:userId, status: BOOKING_STATUS.PENDING, ...payload}], {session})
 
     const tourBasicCost = await Tour.findById(payload.tour).select("costFrom")
+    
     if (payload.guestCount === undefined || payload.guestCount === null) {
         throw new Error("guestCount is required to calculate total cost");
     }
@@ -59,7 +61,9 @@ const createBookingService = async(payload: Partial<IBooking>, userId: string)=>
         transactionId: transactionId
     }
 
-    const sslPayment = await sslService.sslPaymentInit(sslPayload)
+    const sslPayment = await sslService.sslPaymentInit(sslPayload) // this will hit a POST route and get the GatewayPageURL
+
+    console.log(sslPayment)
 
     await session.commitTransaction()
     session.endSession()

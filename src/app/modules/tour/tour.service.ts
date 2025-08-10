@@ -66,24 +66,49 @@ const createTourService = async(tourInfo: ITour)=>{
 
 const getAllTourService = async(query : Record<string, string>)=>{
 
-    console.log(query)
+    // console.log(query)
     const fields = query.fields?.split(",").join(" ") || ""
     const page = parseInt(query.page) || 1
     const limit = parseInt(query.limit) || 10
-    const skip = (page - 1) * limit
-    console.log(skip)
+
+    const skip = (page - 1) * limit // je koyta skip korbe
+    // console.log(skip)
+
+    /*
+    page	limit	skip (items to skip)
+    1	    10	    (1-1) * 10 = 0 → show 1–10
+    2	    10	    (2-1) * 10 = 10 → show 11–20
+    */
     
     const filter = query
     const searchTerm = query.searchTerm || ""
     const sort = query.sort || "-createdAt"
-    // * cause filter does not need searchTerm!
-    delete filter["searchTerm"]
+    
+    // * cause filter does not need searchTerm! find(filter) -> here just need {location: "Comilla"}
+
+    // for searchTerm -> location=Comilla&searchTerm=c
+    // then i will get { location: 'Comilla', searchTerm: 'c' }, so for filter i need only {location: 'Comilla'}
+
+    // for fields -> location=Comilla&fields=title
+    
+    delete filter["searchTerm"] // this will work when i will give both filter and searchTerm to work find(filter)
     delete filter["sort"]
     delete filter["fields"]
-    delete filter["page"]
-    delete filter["limit"]
+    // delete filter["page"]
+    // delete filter["limit"]
+    // console.log(filter)
 
     const searchArray = ["title", "description"]
+
+    /*
+    db.tours.find({
+        $or: [
+            { title: { $regex: "beach", $options: "i" } },
+            { description: { $regex: "relax", $options: "i" } }
+        ]
+    })
+    */
+
     const searchQuery = {
         $or: searchArray.map((field)=> ({[field]: {$regex: searchTerm, $options: "i"}}))
     }
@@ -138,8 +163,6 @@ const updateTourService = async(payload: Partial<ITour>, tourId: string)=>{
             .filter(imageUrl => !restDBImages.includes(imageUrl))
 
         payload.images = [...restDBImages, ...updatedPayloadImages]
-
-
     }
 
     const updatedTour = await Tour.findByIdAndUpdate(tourId, payload, {new: true})
