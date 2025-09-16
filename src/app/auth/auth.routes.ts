@@ -10,7 +10,7 @@ authRoutes.post("/login", authController.userLogin);
 
 authRoutes.post("/refresh-token", authController.getNewAccessToken);
 
-authRoutes.get("/logout", authController.userLogOut);
+authRoutes.post("/logout", authController.userLogOut);
 
 authRoutes.post("/change-password",
   roleBasedProtection(...Object.values(Role)),

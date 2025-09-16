@@ -174,9 +174,19 @@ const updateTourService = async(payload: Partial<ITour>, tourId: string)=>{
     return updatedTour
 }
 
+const getSingleTourService = async(id: string)=>{
+    const singleTour = await Tour.findById(id)
+    console.log(singleTour)
+    if(!singleTour){
+        throw new Error("this tour does not exist!");
+    }
+    return singleTour
+}
+
 
 export const tourServices = {
     createTourService,
     getAllTourService,
-    updateTourService
+    updateTourService,
+    getSingleTourService
 }

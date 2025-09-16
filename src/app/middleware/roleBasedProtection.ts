@@ -8,7 +8,7 @@ import { verifyToken } from "../utils/jwt";
 export const roleBasedProtection =
   (...roles: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
-    const accessToken = req.headers.authorization;
+    const accessToken = req.headers.authorization || req.cookies.accessToken
 
     if (!accessToken) {
       throw new Error("access token not found!");

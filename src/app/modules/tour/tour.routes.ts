@@ -29,5 +29,7 @@ tourController.createTour)
 
 tourRoutes.get("/", tourController.getAllTour)
 
+tourRoutes.get("/:id", tourController.getSingleTour)
+
 tourRoutes.patch("/:id",validateSchema(upadteTourZodSchema),roleBasedProtection(Role.ADMIN, Role.SUPER_ADMIN), tourController.updateTour) 
 

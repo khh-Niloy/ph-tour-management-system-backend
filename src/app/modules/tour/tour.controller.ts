@@ -175,9 +175,30 @@ const updateTour = async(req: Request, res: Response)=>{
   }
 }
 
+const getSingleTour = async(req: Request, res: Response) =>{
+    try {
+    const id = req.params.id
+    console.log(id)
+    const singleTour = await tourServices.getSingleTourService(id)
+
+    successResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "single tour",
+      data: singleTour,
+    });
+    } catch (error) {
+        res.status(400).json({
+      success: false,
+      message: (error as Error).message,
+    });
+    }
+}
+
 
 export const tourController = {
   createTour,
   getAllTour,
-  updateTour
+  updateTour,
+  getSingleTour
 }

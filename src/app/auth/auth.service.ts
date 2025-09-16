@@ -31,9 +31,9 @@ const userLoginService = async (playLoad: Partial<IUser>) => {
       throw new Error("user is deleted!");
     }
 
-    // if (!user?.isVerified) {
-    //   throw new Error("user is not verified!");
-    // }
+    if (!user?.isVerified) {
+      throw new Error("user is not verified!");
+    }
 
   const checkPassword = await bcryptjs.compare(
     password as string,
