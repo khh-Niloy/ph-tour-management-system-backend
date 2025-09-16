@@ -1,4 +1,5 @@
 import { Response } from "express";
+import { envVars } from "../config/env";
 
 export const setCookie = (
   res: Response,
@@ -8,14 +9,16 @@ export const setCookie = (
   if (accessToken) {
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: false,
+      secure: envVars.NODE_ENV === "production",
+      sameSite: "none"
     });
   }
 
   if (refreshToken) {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: envVars.NODE_ENV === "production",
+      sameSite: "none"
     });
   }
 };

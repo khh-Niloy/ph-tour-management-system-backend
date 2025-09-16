@@ -52,4 +52,5 @@ export const upadteTourZodSchema = z.object({
     minAge: z.number({invalid_type_error: "minAge must be number"}).positive().min(15, "min age 15").int().optional(),
     division: z.string({required_error: "division is required"}).regex(/^[0-9a-fA-F]{24}$/, "Invalid MongoDB ObjectId for division"),
     tourType: z.string({required_error: "tour type is required"}).regex(/^[0-9a-fA-F]{24}$/, "Invalid MongoDB ObjectId for tourType"),
+    deleteImages: z.array(z.string()).optional()
 })

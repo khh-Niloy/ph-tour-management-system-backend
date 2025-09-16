@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { userServices } from "./user.service";
 import { successResponse } from "../../utils/successResponse";
+import { JwtPayload } from "jsonwebtoken";
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    console.log(req.body)
+    // console.log(req.body)
     const newCreatedUser = await userServices.createUserService(req.body);
     successResponse(res, {
       statusCode: 201,
@@ -25,7 +26,7 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
     const reqBody = req.body;
     const updatedUserInfo = await userServices.updateUserService(
       userId,
-      payload,
+      payload as JwtPayload,
       reqBody
     );
 
@@ -56,8 +57,24 @@ const getAllUser = async (req: Request, res: Response) => {
   }
 };
 
+const getMe = async (req: Request, res: Response) => {
+  try {
+    const userInfo = req.user
+    const me = await userServices.getMeService(userInfo as JwtPayload);
+    successResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "my info",
+      data: me,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const userController = {
   createUser,
   getAllUser,
   updateUser,
+  getMe
 };

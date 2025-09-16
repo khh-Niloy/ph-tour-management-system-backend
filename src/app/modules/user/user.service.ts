@@ -5,7 +5,6 @@ import { User } from "./user.model";
 import bcryptjs from "bcryptjs";
 
 const createUserService = async (playLoad: Partial<IUser>) => {
-  console.log("first")
   const { email, password, ...rest } = playLoad;
 
   const isUserExist = await User.findOne({ email });
@@ -37,40 +36,40 @@ const updateUserService = async (
   payload: JwtPayload,
   reqBody: Partial<IUser>
 ) => {
-  const user = await User.findById(userId);
 
-  console.log(reqBody);
+  if ( reqBody.role !== undefined && [Role.USER, Role.GUIDE].includes(reqBody.role)) {
+    if(payload.userId !== userId){
+      throw new Error("you are not authorized to change others info");
+    }
+  }
+
+  if (
+    payload.role &&
+    reqBody.role !== undefined &&
+    [Role.USER, Role.GUIDE].includes(reqBody.role)
+  ) {
+    throw new Error("you are not authorized to change role");
+  }
+
+  if (
+    (reqBody?.isActive || reqBody?.isDeleted || reqBody?.isVerified) &&
+    reqBody.role !== undefined &&
+    [Role.USER, Role.GUIDE].includes(reqBody.role)
+  ) {
+    throw new Error(
+      "you are not authorized to make this change"
+    );
+  }
+
+  const user = await User.findById(userId);
 
   if (!user) {
     throw new Error("user not found!");
   }
 
-  if (
-    (payload.role == Role.ADMIN || payload.role == Role.USER) &&
-    reqBody.role == Role.SUPER_ADMIN
-  ) {
-    throw new Error("you are not authorized to make role super admin");
+  if(payload.role == Role.ADMIN && user.role == Role.SUPER_ADMIN){
+    throw new Error("you can not update super admin info");
   }
-
-  if (payload.role == Role.USER && reqBody.role == Role.ADMIN) {
-    throw new Error("you are not authorized to make role admin");
-  }
-
-  if (
-    (reqBody.isActive || reqBody.isDeleted || reqBody.isVerified) &&
-    payload.role === Role.USER
-  ) {
-    throw new Error(
-      "you are not authorized to make changes to isActive, isDeleted and isVerified as user"
-    );
-  }
-
-  const newUpdateHashedPassword = await bcryptjs.hash(
-    reqBody.password as string,
-    parseInt(envVars.BCRYPT_SALT_ROUND)
-  );
-
-  reqBody.password = newUpdateHashedPassword;
 
   const updateUser = await User.findByIdAndUpdate(userId, reqBody, {
     new: true,
@@ -84,8 +83,14 @@ const getAllUserService = async () => {
   return { allUser, totalCount };
 };
 
+const getMeService = async (userInfo: JwtPayload) => {
+  const meUser = await User.findById(userInfo.userId).select("-password")
+  return meUser
+};
+
 export const userServices = {
   createUserService,
   getAllUserService,
   updateUserService,
+  getMeService
 };

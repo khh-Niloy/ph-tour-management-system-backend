@@ -1,3 +1,4 @@
+import { deleteImageFromCloudinary } from "../../config/cloudinary.config"
 import { Tour } from "../tour/tour.model"
 import { IDivision } from "./division.interface"
 import { Division } from "./division.model"
@@ -35,16 +36,28 @@ const getSingleDivisionService = async(slug: string)=>{
 
 const updateDivisionService = async(divisionInfo : Partial<IDivision>, divisionId: string)=>{
 
-    const duplicateDivisionName = await Division.findOne({name: divisionInfo.name})
-    if(duplicateDivisionName){
+    const division = await Division.findById(divisionId)
+
+    if(!division){
+        throw new Error("division not found");
+    }
+
+    const divisionName = await Division.findOne({name: divisionInfo.name})
+    if(divisionName){
         throw new Error("division name already exist!");
     }
 
+    // done with hook
     // if(divisionInfo.name){
     //     divisionInfo.slug = (divisionInfo.name+"-"+"division").toLowerCase()
     // }
 
     const updateDivision = await Division.findByIdAndUpdate(divisionId, divisionInfo, {new: true})
+
+    if(divisionInfo.thumbnail && division?.thumbnail){
+        await deleteImageFromCloudinary(division.thumbnail)
+    }
+
     return updateDivision
 }
 

@@ -36,6 +36,10 @@ export const roleBasedProtection =
       throw new Error("user is deleted!");
     }
 
+    if (!user?.isVerified) {
+      throw new Error("user is not verified!");
+    }
+
     if (!Object.values(roles).includes(userInfoJWTAccessToken.role)) {
       throw new Error("You are not permitted to view this route!!!");
     }

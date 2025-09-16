@@ -1,10 +1,16 @@
 import { Request, Response } from "express"
 import { divisionServices } from "./division.service"
 import { successResponse } from "../../utils/successResponse"
+import { IDivision } from "./division.interface"
 
 const createDivision = async(req: Request, res: Response) =>{
     try {
-        const newDivision = await divisionServices.createDivisionService(req.body)
+      const payload : IDivision = {
+          ...req.body,
+        thumbnail: req.file?.path
+      }
+
+      const newDivision = await divisionServices.createDivisionService(payload)
 
     successResponse(res, {
       statusCode: 201,
@@ -62,7 +68,13 @@ const getSingleDivision = async(req: Request, res: Response) =>{
 const updateDivision = async(req: Request, res: Response) =>{
     try {
     const divisionId = req.params.id
-    const updatedDivision = await divisionServices.updateDivisionService(req.body, divisionId)
+
+    const payload : IDivision = {
+      ...req.body,
+      thumbnail: req.file?.path
+    }
+
+    const updatedDivision = await divisionServices.updateDivisionService(payload, divisionId)
 
     successResponse(res, {
       statusCode: 200,

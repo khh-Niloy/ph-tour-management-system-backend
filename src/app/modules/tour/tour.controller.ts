@@ -1,6 +1,7 @@
-import { Request, Response } from "express"
+import { NextFunction, Request, Response } from "express"
 import { tourServices, tourTypeServices } from "./tour.service"
 import { successResponse } from "../../utils/successResponse"
+import { ITour } from "./tour.interface"
 
 const createTourType = async(req: Request, res: Response)=>{
     try {
@@ -97,9 +98,18 @@ export const tourTypeController = {
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-const createTour = async(req: Request, res: Response)=>{
+const createTour = async(req: Request, res: Response, next: NextFunction)=>{
   try {
-    const newTour = await tourServices.createTourService(req.body)
+
+    const files = req.files as Express.Multer.File[]
+    const imagePaths = files?.map(file => file.path)
+
+    const payload : ITour = {
+      ...req.body,
+      images: imagePaths
+    }
+
+    const newTour = await tourServices.createTourService(payload)
 
     successResponse(res, {
       statusCode: 201,
@@ -109,23 +119,24 @@ const createTour = async(req: Request, res: Response)=>{
     });
 
   } catch (error) {
-    console.log(error);
-    res.status(400).json({
-      success: false,
-      message: (error as Error).message,
-    });
+    // console.log(error);
+    // res.status(400).json({
+    //   success: false,
+    //   message: (error as Error).message,
+    // });
+    next(error)
   }
 }
 
 const getAllTour = async(req: Request, res: Response)=>{
   try {
     const query = req.query
-    const {newTour, meta} = await tourServices.getAllTourService(query as Record<string, string>)
+    const {newTour, totalTour} = await tourServices.getAllTourService(query as Record<string, string>)
 
     successResponse(res, {
       statusCode: 200,
       success: true,
-      meta: meta,
+      meta: totalTour,
       message: "all tour",
       data: newTour,
     });
@@ -142,7 +153,11 @@ const getAllTour = async(req: Request, res: Response)=>{
 const updateTour = async(req: Request, res: Response)=>{
   try {
     const tourId = req.params.id
-    const updatedTour = await tourServices.updateTourService(req.body, tourId)
+    const payload: ITour = {
+        ...req.body,
+        thumbnail: req.file?.path
+    }
+    const updatedTour = await tourServices.updateTourService(payload, tourId)
 
     successResponse(res, {
       statusCode: 200,
